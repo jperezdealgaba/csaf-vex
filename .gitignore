@@ -11,3 +11,8 @@ wheels/
 
 # Local Python version
 .python-version
+
+# PyCharm
+.idea/
+*.iml
+*.iws
