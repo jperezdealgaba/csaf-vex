@@ -25,7 +25,7 @@ class PluginManager:
         eps = entry_points(group=self.PLUGIN_ENTRY_POINT_GROUP)
 
         # Deterministic order by entry point name
-        sorted_eps = sorted(eps, key=lambda ep: ep.name)  # type: ignore[arg-type]
+        sorted_eps = sorted(eps, key=lambda ep: ep.name)
 
         for ep in sorted_eps:
             try:
@@ -54,8 +54,6 @@ class PluginManager:
         plugins = self._load()
 
         results: list[ValidationResult] = []
-        if not plugins:
-            return results
         for plugin in plugins:
             results.append(plugin.validate(document))
         return results

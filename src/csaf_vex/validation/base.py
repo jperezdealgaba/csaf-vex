@@ -1,13 +1,14 @@
 """Base validation API for CSAF VEX plugins."""
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
 from time import perf_counter
+
+import attrs
 
 from csaf_vex.models import CSAFVEXDocument
 
 
-@dataclass
+@attrs.define
 class ValidationError:
     """A validation finding produced by a validator.
 
@@ -18,14 +19,14 @@ class ValidationError:
     message: str
 
 
-@dataclass
+@attrs.define
 class ValidationResult:
     """The aggregated outcome of a single validator's execution."""
 
     validator_name: str
     success: bool
-    errors: list[ValidationError] = field(default_factory=list)
-    duration_ms: int | None = None
+    errors: list[ValidationError] = attrs.field(factory=list)
+    duration_ms: int | None = attrs.field(default=None)
 
 
 class ValidationPlugin(ABC):
@@ -54,13 +55,13 @@ class ValidationPlugin(ABC):
             )
         except Exception as exc:
             duration_ms = int((perf_counter() - start) * 1000)
-            crash = ValidationError(
+            error = ValidationError(
                 message=f"Plugin execution failed unexpectedly: {type(exc).__name__}: {exc}",
             )
             return ValidationResult(
                 validator_name=self.name,
                 success=False,
-                errors=[crash],
+                errors=[error],
                 duration_ms=duration_ms,
             )
 

@@ -33,7 +33,7 @@ class MyPlugin(ValidationPlugin):
         errors: list[ValidationError] = []
         title = document.document.title if document.document else None
         if not title or not title.strip():
-            errors.append(ValidationError(validator_name=self.name, message="document.title missing"))
+            errors.append(ValidationError(message="document.title missing"))
         return errors
 ```
 
@@ -65,7 +65,8 @@ from csaf_vex.models import CSAFVEXDocument
 from csaf_vex.validation.manager import PluginManager
 import json
 
-data = json.loads(open("examples/sample-vex.json").read())
+with open("examples/sample-vex.json") as f:
+    data = json.load(f)
 doc = CSAFVEXDocument.from_dict(data, verify=True)
 results = PluginManager().run(doc)
 ```
