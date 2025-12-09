@@ -1,6 +1,7 @@
 """CLI entrypoint for csaf-vex."""
 
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
@@ -136,7 +137,8 @@ def read(ctx: click.Context, file: Path, verify: bool, verbose: bool):
 def verify(ctx: click.Context, file: Path, test_set: str, test_id: tuple[str, ...], verbose: bool):
     """Verify a CSAF VEX file against the CSAF standard."""
     try:
-        verifier = Verifier.from_file(file)
+        log_level = logging.DEBUG if verbose else logging.INFO
+        verifier = Verifier.from_file(file, log_level=log_level)
 
         click.echo(f"Verifying: {file}")
         if verifier.document_id:
@@ -169,8 +171,9 @@ def verify(ctx: click.Context, file: Path, test_set: str, test_id: tuple[str, ..
 @main.command()
 @click.argument("file", type=click.Path(exists=True, path_type=Path))
 @click.option("--json", "as_json", is_flag=True, default=False, help="Output results as JSON")
+@click.option("--verbose", "-v", is_flag=True, help="Show detailed verification results")
 @click.pass_context
-def validate(ctx: click.Context, file: Path, as_json: bool):
+def validate(ctx: click.Context, file: Path, as_json: bool, verbose: bool):
     """Validate a CSAF VEX JSON file using installed validator plugins."""
     try:
         with file.open() as f:
@@ -178,7 +181,8 @@ def validate(ctx: click.Context, file: Path, as_json: bool):
 
         document = CSAFVEXDocument.from_dict(data)
 
-        results: list[ValidationResult] = PluginManager().run(document)
+        log_level = logging.DEBUG if verbose else logging.INFO
+        results: list[ValidationResult] = PluginManager(log_level=log_level).run(document)
 
         if as_json:
             payload = [
